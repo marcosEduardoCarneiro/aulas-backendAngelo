@@ -41,4 +41,16 @@ export function deletarLivro(id) {
 
   livros.splice(index_livro, 1);
 }
-function editarLivro() {}
+
+export function editarLivro(id, titulo, autor) {
+  let index_livro = livros.findIndex((livro) => {
+    return livro.idLivro === id;
+  });
+  if (index_livro === -1) {
+    return false;
+  }
+  console.log(livros[index_livro]);
+  livros[index_livro].dsTitulo = titulo;
+  livros[index_livro].dsAutor = autor;
+  return true;
+}

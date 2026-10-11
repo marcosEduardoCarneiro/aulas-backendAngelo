@@ -1,10 +1,14 @@
 import Router from "express";
+import {editarLivro} from "../controllers/livros-controller.js";
+import {validarID} from "../controllers/livros-controller.js";
 import {
   criarLivro,
   deletarLivro,
   findAll,
   findOne,
 } from "../controllers/livros-controller.js";
+
+
 
 const router = Router();
 
@@ -65,5 +69,20 @@ router.delete("/:id", (req, res) => {
   deletarLivro(idLivro);
   return res.status(204).send();
 });
-router.patch("/:id", (req, res) => {});
+router.patch("/:id", validarID, (req, res) => {
+  const idLivro = parseInt(req.params.id)
+  const titulo_enviado = req.body.dsTitulo;
+  const autor_enviado = req.body.dsAutor;
+
+  let editar_livro = editarLivro(idLivro, titulo_enviado, autor_enviado)
+
+  if (editar_livro === false) {
+    return res.status(404).json({mensagem: "Recurso não encontrado, revise as credenciais!"})
+  }
+  else {
+    return res.status(200).json({mensagem: "editado com sucesso!"})
+  }
+//  next()
+});
 export default router;
+
