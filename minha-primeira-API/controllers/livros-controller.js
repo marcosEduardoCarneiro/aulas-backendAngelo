@@ -1,4 +1,4 @@
-let livros = [
+export let livros = [
   {
     idLivro: 1,
     dsTitulo: "as cronicas de narnia",
@@ -12,6 +12,7 @@ let ultimoId = 1;
 export function findAll() {
   return livros;
 }
+
 export function findOne(id) {
   let livro = livros.find((livro) => {
     return livro.idLivro === id;
@@ -19,6 +20,7 @@ export function findOne(id) {
 
   return livro;
 }
+
 export function criarLivro(titulo, autor) {
   let novoId = ultimoId + 1;
   ultimoId++;
@@ -46,11 +48,15 @@ export function editarLivro(id, titulo, autor) {
   let index_livro = livros.findIndex((livro) => {
     return livro.idLivro === id;
   });
+
   if (index_livro === -1) {
     return false;
   }
+
   console.log(livros[index_livro]);
+
   livros[index_livro].dsTitulo = titulo;
   livros[index_livro].dsAutor = autor;
+
   return true;
 }
