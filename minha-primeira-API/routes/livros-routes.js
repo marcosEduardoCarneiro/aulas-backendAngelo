@@ -7,10 +7,42 @@ import {
   findAll,
   findOne,
 } from "../controllers/livros-controller.js";
+import { verificaAdmin } from "../controllers/usuarios-controllers.js";
 
 
 
 const router = Router();
+
+// NOVO: o bloco solto virou um middleware (agora req, res e return existem)
+function autenticar(req, res, next) {
+  let auth = req.headers.authorization; // ALTERADO: era "autorization"
+  console.log(auth);
+
+  if (!auth) {
+    return res.status(401).send();
+  }
+
+  let token = auth.split(" ");
+  console.log(token);
+
+  let usernameCripto = token[1]; // NOVO: antes essa variável não existia
+
+  if (!usernameCripto) {
+    return res.status(401).send();
+  }
+
+  req.usernameCripto = usernameCripto; // guarda para o próximo middleware
+  next();
+}
+
+// NOVO: verificação de admin também virou middleware
+function exigirAdmin(req, res, next) {
+  let ehAdmin = verificaAdmin(req.usernameCripto); // ALTERADO: agora recebe o usuário
+  if (!ehAdmin) {
+    return res.status(403).send(); // ALTERADO: antes era res.status(400) sem enviar nada
+  }
+  next();
+}
 
 router.get("/", (req, res) => {
   const todosOsLivros = findAll();
@@ -34,7 +66,8 @@ router.get("/:id", (req, res) => {
   res.json(livro);
 });
 
-router.post("/", (req, res) => {
+// ALTERADO: adicionados os middlewares autenticar e exigirAdmin
+router.post("/", autenticar, exigirAdmin, (req, res) => {
   let autor_enviado = req.body.dsAutor;
   let titulo_enviado = req.body.dsTitulo;
 
@@ -52,7 +85,8 @@ router.post("/", (req, res) => {
   return res.status(201).json(livro_criado);
 });
 
-router.delete("/:id", (req, res) => {
+// ALTERADO: adicionados os middlewares autenticar e exigirAdmin
+router.delete("/:id", autenticar, exigirAdmin, (req, res) => {
   const idLivro = parseInt(req.params.id);
 
   if (isNaN(idLivro)) {
@@ -69,7 +103,9 @@ router.delete("/:id", (req, res) => {
   deletarLivro(idLivro);
   return res.status(204).send();
 });
-router.patch("/:id", validarID, (req, res) => {
+
+// ALTERADO: adicionados os middlewares autenticar e exigirAdmin
+router.patch("/:id", autenticar, exigirAdmin, validarID, (req, res) => {
   const idLivro = parseInt(req.params.id)
   const titulo_enviado = req.body.dsTitulo;
   const autor_enviado = req.body.dsAutor;
@@ -85,4 +121,3 @@ router.patch("/:id", validarID, (req, res) => {
 //  next()
 });
 export default router;
-

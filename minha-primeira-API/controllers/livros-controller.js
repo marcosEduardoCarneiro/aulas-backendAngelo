@@ -60,3 +60,16 @@ export function editarLivro(id, titulo, autor) {
 
   return true;
 }
+
+// NOVO: middleware que valida o id da rota
+export function validarID(req, res, next) {
+  const idLivro = parseInt(req.params.id);
+
+  if (isNaN(idLivro)) {
+    return res
+      .status(400)
+      .json({ mensagem: "identificador deve ser um numero" });
+  }
+
+  next();
+}
